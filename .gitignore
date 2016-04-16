@@ -4,3 +4,5 @@
 /npm-debug.log
 dist
 lib/markdown.js
+server.js
+index.html
