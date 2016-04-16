@@ -14,7 +14,19 @@ define(['../markdown_helpers', './dialect_helpers', './gruber', '../parser'], fu
         attr["class"] = "meta-video";
       attr["type"] = "meta";
     }
-
+    else if(tagtype === "media"){
+      if(metablock[1].trim().toLowerCase() === "video-youtube"){
+        attr["title"] = metablock[2];
+        var href = metablock[3].toString();
+        //Regex to validate youtube videos
+        var patt = new RegExp(/https?:\/\/(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\S*[^\w\s-])([\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/ig);
+      
+        attr["src"] = href.replace(patt, "http://www.youtube.com/embed/$1?autoplay=1");
+        attr["frameborder"] = "0";
+        attr["allowfullscreen"] = "true";
+      }
+    }
+   
     return attr;
   };
 
@@ -27,11 +39,23 @@ define(['../markdown_helpers', './dialect_helpers', './gruber', '../parser'], fu
       * Adding new grammar rule for meta info
       *********************************************/
       meta:/\s*>\s-\s\[meta\](.+)/,
+      /*******************************************
+      * comprocomproDLS Changes
+      * Adding new grammar rule "media": {Type}{Title}Href. Possible type values are:
+      * 1. video-youtube
+      *********************************************/
+      media:/\s*{(.*?)}\s*{(.*?)}\s*(.*)/
     };
 
     if((cap = block.match(rules.meta))){
       list = ["div"];
       attr = this.dialect.processMetaHash( cap, "meta" );
+      list.push(attr);
+      return [ list ];
+    }
+    else if((cap = block.match(rules.media))){
+      list = ["iframe"];
+      attr = this.dialect.processMetaHash( cap, "media" );
       list.push(attr);
       return [ list ];
     }
