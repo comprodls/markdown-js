@@ -5,7 +5,7 @@
  * Copyright (c) 2009-2010 Ash Berlin
  * Copyright (c) 2011 Christoph Dorn <christoph@christophdorn.com> (http://www.christophdorn.com)
  * Version: 0.6.0-beta1
- * Date: 2016-04-16T11:52Z
+ * Date: 2016-04-19T11:32Z
  */
 
 (function(expose) {
@@ -1857,8 +1857,7 @@
   };
 
   comproDLS.block.document_meta = function document_meta( block ) {
-
-    var cap, list, attr;
+    var cap, list, attr, src;
     var rules = {
       /*******************************************
       * comprocomproDLS Changes
@@ -1870,7 +1869,8 @@
       * Adding new grammar rule "media": {Type}{Title}Href. Possible type values are:
       * 1. video-youtube
       *********************************************/
-      media:/\s*{(.*?)}\s*{(.*?)}\s*(.*)/
+      media:/\s*{(.*?)}\s*{(.*?)}\s*(.*)/,
+      code: /^ *(`{3,}|~{3,})[ \.]*(\S+)? *\n([\s\S]*?)\s*\1 *(?:\n+|$)/
     };
 
     if((cap = block.match(rules.meta))){
@@ -1883,6 +1883,12 @@
       list = ["iframe"];
       attr = this.dialect.processMetaHash( cap, "media" );
       list.push(attr);
+      return [ list ];
+    }
+    else if((cap = block.match(rules.code))){
+      list = ["code_block"];
+      src = cap[3];
+      list.push(src);
       return [ list ];
     }
     else{

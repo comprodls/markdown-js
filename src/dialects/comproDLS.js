@@ -31,8 +31,7 @@ define(['../markdown_helpers', './dialect_helpers', './gruber', '../parser'], fu
   };
 
   comproDLS.block.document_meta = function document_meta( block ) {
-
-    var cap, list, attr;
+    var cap, list, attr, src;
     var rules = {
       /*******************************************
       * comprocomproDLS Changes
@@ -44,7 +43,8 @@ define(['../markdown_helpers', './dialect_helpers', './gruber', '../parser'], fu
       * Adding new grammar rule "media": {Type}{Title}Href. Possible type values are:
       * 1. video-youtube
       *********************************************/
-      media:/\s*{(.*?)}\s*{(.*?)}\s*(.*)/
+      media:/\s*{(.*?)}\s*{(.*?)}\s*(.*)/,
+      code: /^ *(`{3,}|~{3,})[ \.]*(\S+)? *\n([\s\S]*?)\s*\1 *(?:\n+|$)/
     };
 
     if((cap = block.match(rules.meta))){
@@ -57,6 +57,12 @@ define(['../markdown_helpers', './dialect_helpers', './gruber', '../parser'], fu
       list = ["iframe"];
       attr = this.dialect.processMetaHash( cap, "media" );
       list.push(attr);
+      return [ list ];
+    }
+    else if((cap = block.match(rules.code))){
+      list = ["code_block"];
+      src = cap[3];
+      list.push(src);
       return [ list ];
     }
     else{
